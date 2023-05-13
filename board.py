@@ -12,17 +12,27 @@ def ACTIONS(state):
     res = {}
     while queue:
         index = queue.pop(0)
+        strindex = tostr(index)
         if index[0]-1 in range(0,len(state)+1): # can move
             if state[index[0]-1][index[1]] == 0: # move on step
-                print(index[0],index[1])
-                res[tostr(index)] = [index[0]-1,index[1]]
+                if strindex not in res:
+                    res[strindex] = [[index[0]-1,index[1]]]
+                else:
+                    res[strindex].append([index[0]-1,index[1]])
             if index[1]-1 in range(0,len(state[0])):
                 if state[index[0]-1][index[1]-1] == -1:
-                    res[tostr(index)] = [index[0]-1,index[1]-1]
+                    if strindex not in res:
+                        res[strindex] = [[index[0]-1,index[1]-1]]
+                    else:
+                        res[strindex].append([index[0]-1,index[1]-1])
             if index[1]+1 in range(0,len(state[0])):
                 if state[index[0]-1][index[1]+1] == -1:
-                    res[tostr(index)] = [index[0]-1,index[1]+1]
+                    if strindex not in res:
+                        res[strindex] = [[index[0]-1,index[1]+1]]
+                    else:
+                        res[strindex].append([index[0]-1,index[1]+1])
     return res
+
 
 def tostr(arr):
     if len(arr) == 2:
@@ -31,9 +41,8 @@ def tostr(arr):
         return print("arr lenth must = 2")
     
 
-
 def main():
-    board = [[-1,-1,-1],[-1,0,0],[1,1,1]]
+    board = [[-1,-1,-1],[0,-1,0],[1,1,1]]
     print(ACTIONS(board))
 
 
