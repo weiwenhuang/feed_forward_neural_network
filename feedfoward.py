@@ -11,8 +11,9 @@ def main():
         [1,1,1]]
     test = np.array([1,2,3])
     print("\n\nADDER NETWORK")
+    #self,input_units,choose,hidden_layers,hidden_units,output_units
     a = Neuron(2,'Relu',2,2,2)
-    adder(a,100)
+    adder(a,1)
 
 
 
@@ -79,11 +80,10 @@ class Neuron:
             weight_i = self.layers_level[i][0]
             bias_i = self.layers_level[i][1]
             data = self.forward_outvalue[i-1]
-            value = weight_i @ data + bias_i
+            value =  np.matmul(weight_i , data) + bias_i
             outvalue = function(self.choose,value)
             self.forward_value.append(value)
             self.forward_outvalue.append(outvalue)
-
     def update_weights(self,train_ans):
         self.back_delta = []
         #l2 loss function
@@ -111,52 +111,20 @@ class Neuron:
                 a_i = self.forward_value[i - 1]
                 w_i += np.matmul(a_i,d_i.T)*0.01
             layer[0] = w_i
-'''
+
 def adder(feedfoward, tran_range):
     df = [(np.array([[0], [0]]), np.array([[0], [0]])),(np.array([[0], [1]]), np.array([[0], [1]])),(np.array([[1], [0]]), np.array([[0], [1]])),(np.array([[1], [1]]), np.array([[1], [0]])),]
     #tran
     for i in range(tran_range):
         d = random.choice(df)
         feedfoward.classify(d[0])
-        feedfoward.update_weights(d[1])
+    '''
     for j in df:
         feedfoward.classify(j[0])
         predict = feedfoward.forward_outvalue[-1]
         print('Input: ',j[0].flatten())
         print('Output: ',j[1].flatten())
         print('predict: ',predict.flatten())'''
-def adder(net, epochs: int = 100):
-    """Automate training and testing of Adder given a FeedForwardNet.
-
-    Args:
-        net (FeedForwardNet): Instance of FeedForwardNet
-        epochs (int, optional): Number of training rounds. Defaults to 20.
-    """
-    # Input/Output Pairs from writeup
-    data = [
-        (np.array([[0], [1]]), np.array([[0], [1]])),
-        (np.array([[0], [0]]), np.array([[0], [0]])),
-        (np.array([[1], [0]]), np.array([[0], [1]])),
-        (np.array([[1], [1]]), np.array([[1], [0]])),
-    ]
-
-    # Train
-    for i in range(epochs):
-        d = random.choice(data)
-        net.classify(d[0])
-        net.update_weights(d[1])
-
-    # Test
-    for pair in data:
-        net.classify(pair[0])
-        pred = net.forward_outvalue[-1]
-        print(
-            f"Input: {pair[0].flatten()}\n"
-            f"Output: {pair[1].flatten()}\n"
-            f"Predicted: {pred}\n"
-        )   
-
-
 
 if __name__ == "__main__":
     main()
