@@ -110,6 +110,7 @@ class Neuron:
             else:
                 a_i = self.forward_value[i - 1]
                 w_i += np.matmul(a_i,d_i.T)*0.01
+            layer[0] = w_i
 '''
 def adder(feedfoward, tran_range):
     df = [(np.array([[0], [0]]), np.array([[0], [0]])),(np.array([[0], [1]]), np.array([[0], [1]])),(np.array([[1], [0]]), np.array([[0], [1]])),(np.array([[1], [1]]), np.array([[1], [0]])),]
@@ -124,7 +125,7 @@ def adder(feedfoward, tran_range):
         print('Input: ',j[0].flatten())
         print('Output: ',j[1].flatten())
         print('predict: ',predict.flatten())'''
-def adder(net, epochs: int = 20):
+def adder(net, epochs: int = 100):
     """Automate training and testing of Adder given a FeedForwardNet.
 
     Args:
@@ -152,7 +153,7 @@ def adder(net, epochs: int = 20):
         print(
             f"Input: {pair[0].flatten()}\n"
             f"Output: {pair[1].flatten()}\n"
-            f"Predicted: {pred.flatten()}\n"
+            f"Predicted: {pred}\n"
         )   
 
 
