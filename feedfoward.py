@@ -12,7 +12,7 @@ def main():
     test = np.array([1,2,3])
     print("\n\nADDER NETWORK")
     a = Neuron(2,'Relu',2,2,2)
-    adder(a,20)
+    adder(a,100)
 
 
 
@@ -106,12 +106,10 @@ class Neuron:
             # input to hidden transition
             if i == 0:
                 x_i = self.train_data
-                #w_i += np.matmul(x_i,d_i).T
-                w_i += x_i@d_i.T * 0.01
+                w_i += np.matmul(x_i,d_i.T)*0.01
             else:
                 a_i = self.forward_value[i - 1]
-                #w_i += np.matmul(a_i,d_i).T
-                w_i += a_i@d_i.T* 0.01
+                w_i += np.matmul(a_i,d_i.T)*0.01
 '''
 def adder(feedfoward, tran_range):
     df = [(np.array([[0], [0]]), np.array([[0], [0]])),(np.array([[0], [1]]), np.array([[0], [1]])),(np.array([[1], [0]]), np.array([[0], [1]])),(np.array([[1], [1]]), np.array([[1], [0]])),]
