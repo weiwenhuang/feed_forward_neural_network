@@ -164,12 +164,18 @@ class Neuron:
                                 h = self.forward_prevalue[-t]
                             #self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
                             for index in range(len(self.layers_level[-i][1])):
-                                #weight
-                                for index2 in range(len(d_L_d_ypred)):
+                                if self.output_units > 1:
                                     if k == index:
-                                        self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index2] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                                        self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
                                     #bias
-                                    self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index2] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
+                                    self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
+                                #weight
+                                else:
+                                    for index2 in range(len(d_L_d_ypred)):
+                                        if k == index:
+                                            self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index2] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                                        #bias
+                                        self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index2] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
 
                     
 
