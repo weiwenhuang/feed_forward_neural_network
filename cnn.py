@@ -2,9 +2,25 @@ import numpy as np
 
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    a = Neuron('sigmoid',2,1,2,1)
-    test = np.array([2,3])
-    a.feedforward(test)
+    a = Neuron('sigmoid',2,1,2,2)
+
+
+    data = np.array([
+    [-2, -1],  # Alice
+    [25, 6],   # Bob
+    [17, 4],   # Charlie
+    [-15, -6], # Diana
+    ])
+
+    all_y_trues = np.array([
+    [0,1], # Alice
+    [1,0], # Bob
+    [1,0], # Charlie
+    [0,1], # Diana
+    ])
+
+    a.update_weight(data,all_y_trues)
+    print(a.feedforward(np.array([25,6])))
 
 def function(str,x):
     if str == 'Relu':
@@ -17,6 +33,16 @@ def sigmoid(x):
 
 def Relu(x):
     return np.maximum(0, x)
+
+def deriv_sigmoid(x):
+  # Derivative of sigmoid: f'(x) = f(x) * (1 - f(x))
+  fx = sigmoid(x)
+  return fx * (1 - fx)
+
+def mse_loss(y_true, y_pred):
+  # y_true and y_pred are numpy arrays of the same length.
+    return ((y_true - y_pred) ** 2).mean()
+
 
 
 class Neuron:
@@ -67,10 +93,42 @@ class Neuron:
                 arr2.append(prevalue)
             self.forward_value.append(arr1)
             self.forward_prevalue.append(arr2)
-            print(self.forward_value)
-            print(self.forward_prevalue)
+            tem = 0
+            for i in range(len(self.forward_prevalue[-1])):
+                tem += self.layers_level[-1][0][i] * self.forward_prevalue[-1][i]
+            tem += self.layers_level[-1][1][0][0]
+            predict = sigmoid(tem)
+            self.forward_value.append(tem)
+            self.forward_prevalue.append(predict)
+        return predict
+    
+    def update_weight(self,data, ally_true):
+        learn_rate = 0.1
+        epochs = 1000 # number of times to loop through the entire dataset
+        for epoch in range(epochs):
+            for x, y_true in zip(data, ally_true):
+                predicty = self.feedforward(x)
+                d_L_d_ypred = -2 * (y_true - predicty)
+                for i in range(1,len(self.forward_prevalue)+1):
+                    t = i+1
+                    for j in range(len(self.layers_level[-i][0])):
+                        for k in range(len(self.layers_level[-i][0][j])):
+                            if t == len(self.forward_prevalue)+1:
+                                h = x
+                            else:
+                                h = self.forward_prevalue[-t]
+                            #self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                            for index in range(len(self.layers_level[-i][1])):
+                                self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                                self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
+                                #learn_rate * d_L_d_ypred * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
+                            #self.layers_level[-i][1] -= learn_rate * d_L_d_ypred * deriv_sigmoid(self.forward_prevalue[-i][k])
+                    
 
-        return "sss"
+            if epoch % 10 == 0:
+                y_preds = np.apply_along_axis(self.feedforward, 1, data)
+                loss = mse_loss(ally_true, y_preds)
+                print("Epoch %d loss: %.3f" % (epoch, loss))
 
 
 if __name__ == "__main__":

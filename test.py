@@ -74,9 +74,9 @@ class OurNeuralNetwork:
         d_L_d_ypred = -2 * (y_true - y_pred)
 
         # Neuron o1
-        d_ypred_d_w5 = h1 * deriv_sigmoid(sum_o1)
-        d_ypred_d_w6 = h2 * deriv_sigmoid(sum_o1)
-        d_ypred_d_b3 = deriv_sigmoid(sum_o1)
+        self.w5 -= learn_rate * d_L_d_ypred * h1 * deriv_sigmoid(sum_o1)
+        self.w6 -= learn_rate * d_L_d_ypred * h2 * deriv_sigmoid(sum_o1)
+        self.b3 -= learn_rate * d_L_d_ypred * deriv_sigmoid(sum_o1)
 
         d_ypred_d_h1 = self.w5 * deriv_sigmoid(sum_o1)
         d_ypred_d_h2 = self.w6 * deriv_sigmoid(sum_o1)
@@ -102,10 +102,6 @@ class OurNeuralNetwork:
         self.w4 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_w4
         self.b2 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_b2
 
-        # Neuron o1
-        self.w5 -= learn_rate * d_L_d_ypred * d_ypred_d_w5
-        self.w6 -= learn_rate * d_L_d_ypred * d_ypred_d_w6
-        self.b3 -= learn_rate * d_L_d_ypred * d_ypred_d_b3
 
       # --- Calculate total loss at the end of each epoch
       if epoch % 10 == 0:
@@ -130,5 +126,4 @@ all_y_trues = np.array([
 # Train our neural network!
 network = OurNeuralNetwork()
 network.train(data, all_y_trues)
-np.array([-2,-1])
-print(network.feedforward(np.array([25,6])))
+print(network.feedforward(np.array([25,3])))
