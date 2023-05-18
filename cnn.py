@@ -1,26 +1,26 @@
 import numpy as np
-
+np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    a = Neuron('sigmoid',2,1,2,2)
+    a = Neuron('sigmoid',2,2,2,2)
 
 
     data = np.array([
-    [-2, -1],  # Alice
-    [25, 6],   # Bob
-    [17, 4],   # Charlie
-    [-15, -6], # Diana
+    [0, 0],  
+    [0, 1],   
+    [1, 0],   
+    [1, 1], 
     ])
 
     all_y_trues = np.array([
-    [0,1], # Alice
-    [1,0], # Bob
-    [1,0], # Charlie
-    [0,1], # Diana
+    [0,0], 
+    [0,1], 
+    [0,1], 
+    [1,0], 
     ])
 
     a.update_weight(data,all_y_trues)
-    print(a.feedforward(np.array([25,6])))
+    print(a.feedforward(np.array([1,1])))
 
 def function(str,x):
     if str == 'Relu':
@@ -70,7 +70,7 @@ class Neuron:
         tem_weight = np.random.randn(self.hidden_units, self.output_units)
         tem_bias = np.random.randn(self.output_units, 1)
         self.layers_level.append([tem_weight, tem_bias])
-        #print(self.layers_level)
+        print(self.layers_level)
     
     def feedforward(self,x):
 
@@ -94,17 +94,17 @@ class Neuron:
             self.forward_value.append(arr1)
             self.forward_prevalue.append(arr2)
             tem = 0
-            for i in range(len(self.forward_prevalue[-1])):
-                tem += self.layers_level[-1][0][i] * self.forward_prevalue[-1][i]
+            
+            for j in range(len(self.forward_prevalue[-1])):
+                tem += self.layers_level[-1][0][j] * self.forward_prevalue[-1][j]
             tem += self.layers_level[-1][1][0][0]
             predict = sigmoid(tem)
             self.forward_value.append(tem)
-            self.forward_prevalue.append(predict)
         return predict
     
     def update_weight(self,data, ally_true):
         learn_rate = 0.1
-        epochs = 1000 # number of times to loop through the entire dataset
+        epochs = 1 # number of times to loop through the entire dataset
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
                 predicty = self.feedforward(x)
@@ -119,7 +119,10 @@ class Neuron:
                                 h = self.forward_prevalue[-t]
                             #self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
                             for index in range(len(self.layers_level[-i][1])):
-                                self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                                #weight
+                                if k == index:
+                                    self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
+                                #bias
                                 self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
                                 #learn_rate * d_L_d_ypred * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
                             #self.layers_level[-i][1] -= learn_rate * d_L_d_ypred * deriv_sigmoid(self.forward_prevalue[-i][k])
