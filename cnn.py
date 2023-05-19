@@ -6,7 +6,9 @@ np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
     #defhexapawntest()
-    defhexapawntest()
+    #defhexapawntest()
+    testweight()
+
 
 def defhexapawntest():
     a = Neuron('sigmoid',10,2,2,1)
@@ -28,7 +30,8 @@ def toarr(x):
     return res
 
 def testweight():
-    a = Neuron('sigmoid',2,2,2,1)
+    #choose,input_units,hidden_layers,hidden_units,output_units
+    a = Neuron('sigmoid',2,2,3,1)
     data = np.array([
     [-2, -1],  
     [25, 6],   
@@ -42,8 +45,10 @@ def testweight():
     1, 
     ])
 
-    a.update_weight(data,all_y_trues)
-    print(a.feedforward(np.array([25,6])))
+    emily = np.array([-7, -3]) # 128 pounds, 63 inches
+    #frank = np.array([20, 2])  # 155 pounds, 68 inches
+    print("Emily: %.3f" % a.feedforward(emily)) # 0.951 - F
+    #print("Frank: %.3f" % a.feedforward(frank)) # 0.039 - M
 
 def addtest():
 
@@ -102,51 +107,90 @@ class Neuron:
     def init_network(self):
         self.layers_level = []
         # first level is input
+
         for i in range(self.hidden_layers):
             if i == 0:
                 m = self.input_units
             else:
                 m = len(self.layers_level[i - 1][1])
             n = self.hidden_units
-            tem_weight = np.random.randn(m, n)
+            tem_weight = np.random.randn(n, m)
             tem_bias = np.random.randn(n, 1)
             self.layers_level.append([tem_weight, tem_bias])
         #predict
         tem_weight = np.random.randn(self.hidden_units, self.output_units)
         tem_bias = np.random.randn(self.output_units, 1)
         self.layers_level.append([tem_weight, tem_bias])
-        #print(self.layers_level)
+        print("------NETWAREK LAYERS-------")
+        print(self.layers_level)
+        print("------------------")
     
     def feedforward(self,x):
 
         #h1 = sigmoid(self.w1 * x[0] + self.w2 * x[1] + self.b1)
         #h2 = sigmoid(self.w3 * x[0] + self.w4 * x[1] + self.b2)
         #o1 = sigmoid(self.w5 * h1 + self.w6 * h2 + self.b3)
-        self.forward_value = []
-        self.forward_prevalue = []
-        self.forward_value.append(x)
-        for i in range(self.hidden_layers):
+        self.forward_sum_value = []
+        self.forward_pre_value = []
+        self.forward_sum_value.append(x)
+        self.forward_pre_value.append(x)
+        #first hidden layer
+        arr1 = []
+        arr2 = []
+        sum_value = 0
+        for j in range(self.hidden_units):
+            sum_value = 0
+            for i in range(len(x)):
+               #w*x 
+                sum_value += x[i] * self.layers_level[0][0][j][i]
+            sum_value += self.layers_level[0][1][j]
+
+            predict = sigmoid(sum_value)
+            arr1.append(sum_value)
+            arr2.append(predict)
+        self.forward_sum_value.append(arr1)
+        self.forward_pre_value.append(arr2)
+
+        #rest
+        for i in range(1,self.hidden_layers):
             arr1 = []
             arr2 = []
-            for j in range(self.hidden_units):
-                tem = 0
+            for j in range(self.hidden_units):#for rach unit
+                sum_value = 0
+                print()
                 for k in range(len(self.layers_level[i][0][j])):
-                    tem += self.layers_level[i][0][j][k] * self.forward_value[i][k]
-                tem += self.layers_level[i][1][j]
-                prevalue = sigmoid(tem)
-                arr1.append(tem)
-                arr2.append(prevalue)
-            self.forward_value.append(arr1)
-            self.forward_prevalue.append(arr2)
-            tem = 0
-            
-            for j in range(len(self.forward_prevalue[-1])):
-                tem += self.layers_level[-1][0][j] * self.forward_prevalue[-1][j]
-            tem += self.layers_level[-1][1][0][0]
-            predict = sigmoid(tem)
-            self.forward_value.append(tem)
+                    # weight * prevalue
+                    sum_value += self.layers_level[i][0][j][k] * self.forward_pre_value[i][k]
+                    #print('x:',self.layers_level[i][0][j][k],'weight:',self.forward_pre_value[i][k])
+                #print('bias:',self.layers_level[i][1][j])
+                #plus bias
+                sum_value += self.layers_level[i][1][j]
+                arr1.append(sum_value)
+                #get predict value fron function
+                predict = sigmoid(sum_value)
+                arr2.append(predict)
+            self.forward_sum_value.append(arr1)
+            self.forward_pre_value.append(arr2)
+
+        #outputlayer:
+        arr1 = []
+        arr2 = []
+        for i in range(self.output_units):
+            sum_value = 0
+            for j in range(self.hidden_units):
+                #print('x:',self.forward_pre_value[-1][j],'weight:',self.layers_level[-1][0][j])
+                sum_value += self.forward_pre_value[-1][j] * self.layers_level[-1][0][j]
+            sum_value += self.layers_level[-1][1][i]
+            #print('bias:',self.layers_level[-1][1][i])
+            arr1.append(sum_value)
+            #get predict value fron function
+            predict = sigmoid(sum_value)
+            arr2.append(predict)
+        self.forward_sum_value.append(arr1)
+        self.forward_pre_value.append(arr2)
         return predict
     
+    '''
     def update_weight(self,data, ally_true):
         learn_rate = 0.1
         epochs = 1000 # number of times to loop through the entire dataset
@@ -154,35 +198,15 @@ class Neuron:
             for x, y_true in zip(data, ally_true):
                 predicty = self.feedforward(x)
                 d_L_d_ypred = -2 * (y_true - predicty)
-                for i in range(1,len(self.forward_prevalue)+1):
-                    t = i+1
-                    for j in range(len(self.layers_level[-i][0])):
-                        for k in range(len(self.layers_level[-i][0][j])):
-                            if t == len(self.forward_prevalue)+1:
-                                h = x
-                            else:
-                                h = self.forward_prevalue[-t]
-                            #self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
-                            for index in range(len(self.layers_level[-i][1])):
-                                if self.output_units > 1:
-                                    if k == index:
-                                        self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
-                                    #bias
-                                    self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
-                                #weight
-                                else:
-                                    for index2 in range(len(d_L_d_ypred)):
-                                        if k == index:
-                                            self.layers_level[-i][0][j][k] -= learn_rate * d_L_d_ypred[index2] * h[k] * deriv_sigmoid(self.forward_prevalue[-i][k])
-                                        #bias
-                                        self.layers_level[-i][1][index] -= learn_rate * d_L_d_ypred[index2] * deriv_sigmoid(np.float64(self.forward_prevalue[-i][k]))
+                
+                
 
                     
 
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.feedforward, 1, data)
                 loss = mse_loss(ally_true, y_preds)
-                print("Epoch %d learning rate: %.3f" % (epoch, loss))
+                print("Epoch %d learning rate: %.3f" % (epoch, loss))'''
 
 
 if __name__ == "__main__":
