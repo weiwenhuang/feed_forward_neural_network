@@ -34,17 +34,17 @@ def testweight():
     a = Neuron('sigmoid',2,2,3,1)
     data = np.array([
     [-2, -1],  
-    [25, 6],   
-    [17, 4],   
-    [-15, -6], 
+    #[25, 6],   
+    #[17, 4],   
+    #[-15, -6], 
     ])
     all_y_trues = np.array([
     1, 
-    0, 
-    0, 
-    1, 
+    #0, 
+    #0, 
+    #1, 
     ])
-
+    a.update_weight(data,all_y_trues)
     emily = np.array([-7, -3]) # 128 pounds, 63 inches
     #frank = np.array([20, 2])  # 155 pounds, 68 inches
     print("Emily: %.3f" % a.feedforward(emily)) # 0.951 - F
@@ -157,7 +157,6 @@ class Neuron:
             arr2 = []
             for j in range(self.hidden_units):#for rach unit
                 sum_value = 0
-                print()
                 for k in range(len(self.layers_level[i][0][j])):
                     # weight * prevalue
                     sum_value += self.layers_level[i][0][j][k] * self.forward_pre_value[i][k]
@@ -190,12 +189,13 @@ class Neuron:
         self.forward_pre_value.append(arr2)
         return predict
     
-    '''
+    
     def update_weight(self,data, ally_true):
         learn_rate = 0.1
-        epochs = 1000 # number of times to loop through the entire dataset
+        epochs = 1 # number of times to loop through the entire dataset
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
+                print(x,y_true)
                 predicty = self.feedforward(x)
                 d_L_d_ypred = -2 * (y_true - predicty)
                 
@@ -206,7 +206,7 @@ class Neuron:
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.feedforward, 1, data)
                 loss = mse_loss(ally_true, y_preds)
-                print("Epoch %d learning rate: %.3f" % (epoch, loss))'''
+                print("Epoch %d learning rate: %.3f" % (epoch, loss))
 
 
 if __name__ == "__main__":
