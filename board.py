@@ -1,4 +1,5 @@
 import copy
+# part 1 
 
 #return movable chess pieces
 #return type: arraylist
@@ -98,6 +99,7 @@ def toarr(str):
     arr = str.split(',')
     return [int(arr[0]),int(arr[1])]
 
+#part2
 #minmax algotithm
 # return value
 def minmax(state,player):
@@ -125,7 +127,6 @@ def main():
         [0,0,0],
         [1,1,1]]
     print(minmax(board,1))
-
 
 if __name__ == "__main__":
     main()
