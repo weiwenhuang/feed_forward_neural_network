@@ -8,20 +8,42 @@ import board as bd
 np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    defhexapawntest()
-    #addtest()
+    #defhexapawntest()
+    addtest()
     #testweight()
 
 def defhexapawntest():
+    #choose,input_units,hidden_layers,hidden_units,output_units
     a = Neuron('sigmoid',10,2,2,1)
     all_y_trues = np.array([])
     tran_data = []
+    maxscore = 0
+    maxsboard = []
     for i in da.boards :
         all_y_trues =  np.append(all_y_trues,bd.minmax(i,1))
         tran_data.append(toarr(i))
     a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1))
-    print(a.classify([1, 0, -1, -1, -1, 0, 0, 1, 1, 1]))
-    print(all_y_trues)
+    #input data
+    player = 1
+    current_state =[[-1,0,-1],
+        [1,-1,0],
+        [0,1,1]]
+    act_list = bd.ACTIONS(current_state,player)
+    for i in act_list:
+        arr_i = bd.toarr(i)
+        new_state = bd.RESULT(current_state,[arr_i,act_list[i][0]])
+        #convert to 1Dlist with payer
+        res = [player]
+        for i in range(len(new_state)):
+            for j in range(len(new_state[0])):
+                res.append(new_state[i][j])
+        #use model to predict if better than current max predict keeep
+        score = a.classify(res)
+        if score[0] > maxscore:
+            maxscore = score[0]
+            maxsboard = new_state
+    print('atfer model precited, the best next move for player:',player,'predict value:',maxscore,'is:\n',maxsboard)
+
 
 
 def toarr(x):
@@ -53,7 +75,7 @@ def testweight():
     print("Frank:",a.classify(frank)) # 0.039 - M
 
 def addtest():
-
+    #choose,input_units,hidden_layers,hidden_units,output_units
     a = Neuron('sigmoid',2,2,2,2)
     data = np.array([
     [0, 0],  
@@ -71,7 +93,7 @@ def addtest():
     a.update_weight(data,all_y_trues)
     print('ans : ',a.classify(np.array([1,1])))
 
-
+#this function is transfer to the function it use
 def function(str,x):
     if str == 'Relu':
         return Relu(x)
@@ -103,6 +125,9 @@ def deriv_Relu(x):
 def mse_loss(y_true, y_pred):
   # y_true and y_pred are numpy arrays of the same length.
     return ((y_true - y_pred) ** 2).mean()
+# this is l2 loss function
+def L2_loss(y_true,y_pre):
+    return np.sum(np.square(y_true-y_pre))
 
 class Neuron:
     def __init__(self,choose,input_units,hidden_layers,hidden_units,output_units):
@@ -248,8 +273,8 @@ class Neuron:
 
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.classify, 1, data)
-                loss = mse_loss(y_true, y_preds)
-                print("Epoch %d loss rate: %.3f" % (epoch, loss))
+                loss = L2_loss(y_true, y_preds)
+                print("Epoch %d L2 loss rate: %.3f" % (epoch, loss))
 
 
 if __name__ == "__main__":
