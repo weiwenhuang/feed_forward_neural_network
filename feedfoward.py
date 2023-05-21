@@ -12,9 +12,12 @@ def main():
     #addtest()
     #testweight()
 
-#this is a function for test hexapawn
 def hexapawntest():
-    #choose,input_units,hidden_layers,hidden_units,output_units
+#   for this test 2 hiiden layers and 21 hideen unit is good to predict the result, even more layer and more unit will make it better, but it will take too much time to run
+#   it will sent current board to action funtion to get all posstible action and then use a for loop to find witch one have biggest predict vlaue
+#   so it will print biggest value and map
+#   tran data from data.py i didn't make too much tran data. more tran data we have, the result will more close to correct answer
+#   Neuron(choose,input_units,hidden_layers,hidden_units,output_units)
     a = Neuron('sigmoid',10,2,2,1)
     all_y_trues = np.array([])
     tran_data = []
@@ -23,7 +26,7 @@ def hexapawntest():
     for i in da.boards :
         all_y_trues =  np.append(all_y_trues,bd.minmax(i,1))
         tran_data.append(toarr(i))
-    # data, ally_true,learn_rate,epochs
+    # (data, ally_true,learn_rate,tran_time)
     a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1),0.1,1000)
     #input data
     player = 1
@@ -45,8 +48,6 @@ def hexapawntest():
             maxscore = score[0]
             maxsboard = new_state
     print('atfer model precited, the best next move for player:',player,'predict value:',maxscore,'is:\n',maxsboard)
-
-
 
 def toarr(x):
     res = [1]
@@ -94,8 +95,8 @@ def addtest():
     [1,0], 
     ])
         # data, ally_true,learn_rate,epochs
-    a.update_weight(data,all_y_trues,0.1,10000)
-    print('ans : ',a.classify(np.array([1,1])))
+    a.update_weight(data,all_y_trues,0.1,1000)
+    print('ans : ',a.classify(np.array([1,0])))
 
 #this function is transfer to the function it use
 def function(str,x):
