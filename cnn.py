@@ -92,7 +92,7 @@ def deriv_sigmoid(x):
 
 def mse_loss(y_true, y_pred):
   # y_true and y_pred are numpy arrays of the same length.
-    return ((y_true - y_pred) ** 2).mean()
+    return 1-((y_true - y_pred) ** 2).mean()
 
 
 
@@ -207,14 +207,14 @@ class Neuron:
             arr2.append(predict)
         self.forward_sum_value.append(arr1)
         self.forward_pre_value.append(arr2)
-        return predict
+        return self.forward_pre_value[-1]
     
     def update_weight(self,data, ally_true):
 
             # weight  self.layers_level[i][0]   bias self.layers_level[i][1]
 
         learn_rate = 0.1
-        epochs = 1 # number of times to loop through the entire dataset
+        epochs = 8000 # number of times to loop through the entire dataset
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
                 predicty = self.feedforward(x)
@@ -230,18 +230,20 @@ class Neuron:
                 print('---------------predict------------------')
                 print(self.forward_pre_value)
                 '''
-                d_L_d_ypred = -2 * (y_true - predicty)
-                print('check',x,y_true)
+
+                d_L_d_ypred = []
+                for i in range(len(y_true)):
+                    d_L_d_ypred.append(-2 * (y_true[i] - predicty[i]))
                 # last layer
                 for j in range(self.output_units):
                     for i in range(len(self.forward_pre_value[-2])):
                         #print(self.forward_pre_value[-2][i],self.forward_pre_value[-1][j])
                         d_ypred_d_w = self.forward_pre_value[-2][i] * deriv_sigmoid(self.forward_sum_value[-1][j])
                         #weight update
-                        self.layers_level[-1][0][j][i] -= learn_rate * d_L_d_ypred * d_ypred_d_w
+                        self.layers_level[-1][0][j][i] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_w
                     d_ypred_d_b = deriv_sigmoid(self.forward_sum_value[-1][j])
                     # bias update
-                    self.layers_level[-1][1][j] -= learn_rate * d_L_d_ypred * d_ypred_d_b
+                    self.layers_level[-1][1][j] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_b
 
                 # rest layer
                 for k in range(len(self.layers_level)-1,0, -1):
@@ -250,15 +252,15 @@ class Neuron:
                             #print('sss',self.forward_pre_value[k-1][i],self.forward_sum_value[k][j])
                             d_ypred_d_w = self.forward_pre_value[k-1][i] * deriv_sigmoid(self.forward_sum_value[k][j])
                             #print('checkweight',self.layers_level[k-1][0][j][i])
-                            self.layers_level[k-1][0][j][i] -= learn_rate * d_L_d_ypred * d_ypred_d_w
+                            self.layers_level[k-1][0][j][i] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_w
                         d_ypred_d_b = deriv_sigmoid(self.forward_sum_value[k][j])
                         #print('check',self.layers_level[k-1][1][j])
                         #update bias
-                        self.layers_level[k-1][1][j] -= learn_rate * d_L_d_ypred * d_ypred_d_b
+                        self.layers_level[k-1][1][j] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_b
 
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.feedforward, 1, data)
-                loss = mse_loss(ally_true, y_preds)
+                loss = mse_loss(y_true, y_preds)
                 print("Epoch %d loss rate: %.3f" % (epoch, loss))
 
 

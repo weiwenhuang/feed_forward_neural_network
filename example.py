@@ -12,7 +12,7 @@ def deriv_sigmoid(x):
 
 def mse_loss(y_true, y_pred):
   # y_true and y_pred are numpy arrays of the same length.
-  return ((y_true - y_pred) ** 2).mean()
+  return 1-((y_true - y_pred) ** 2).mean()
 
 class OurNeuralNetwork:
   '''
@@ -110,7 +110,7 @@ class OurNeuralNetwork:
       # --- Calculate total loss at the end of each epoch
       if epoch % 10 == 0:
         y_preds = np.apply_along_axis(self.feedforward, 1, data)
-        loss = mse_loss(all_y_trues, y_preds)
+        loss = mse_loss(y_true, y_preds)
         print("Epoch %d loss: %.3f" % (epoch, loss))
 
 # Define dataset
