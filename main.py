@@ -6,8 +6,8 @@ import board as bd
 def main():
 
     feedfoward.addtest()
-    #feedfoward.defhexapawntest()
+    #feedfoward.hexapawntest()
     #feedfoward.testweight()
-
+    
 if __name__ == "__main__":
     main()

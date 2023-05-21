@@ -1,6 +1,7 @@
+# Author: Weiwen Huang, Yaxi Huang
+# Course: CISC481
 import copy
 # part 1 
-
 #return movable chess pieces
 #return type: arraylist
 def TOMOVE(state,player):

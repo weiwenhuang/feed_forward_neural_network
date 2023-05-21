@@ -8,11 +8,12 @@ import board as bd
 np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    #defhexapawntest()
-    addtest()
+    hexapawntest() #in minmax it will return [-1,1] in feedfoward it will return [0,1] 0 instead -1
+    #addtest()
     #testweight()
 
-def defhexapawntest():
+#this is a function for test hexapawn
+def hexapawntest():
     #choose,input_units,hidden_layers,hidden_units,output_units
     a = Neuron('sigmoid',10,2,2,1)
     all_y_trues = np.array([])
@@ -22,7 +23,8 @@ def defhexapawntest():
     for i in da.boards :
         all_y_trues =  np.append(all_y_trues,bd.minmax(i,1))
         tran_data.append(toarr(i))
-    a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1))
+    # data, ally_true,learn_rate,epochs
+    a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1),0.1,1000)
     #input data
     player = 1
     current_state =[[-1,0,-1],
@@ -68,7 +70,8 @@ def testweight():
     [0], 
     [1], 
     ])
-    a.update_weight(data,all_y_trues)
+        # data, ally_true,learn_rate,epochs
+    a.update_weight(data,all_y_trues,0.1,1000)
     emily = np.array([-7, -3]) # 128 pounds, 63 inches
     frank = np.array([20, 2])  # 155 pounds, 68 inches
     print("Emily: ",a.classify(emily)) # 0.951 - F
@@ -90,7 +93,8 @@ def addtest():
     [0,1], 
     [1,0], 
     ])
-    a.update_weight(data,all_y_trues)
+        # data, ally_true,learn_rate,epochs
+    a.update_weight(data,all_y_trues,0.1,10000)
     print('ans : ',a.classify(np.array([1,1])))
 
 #this function is transfer to the function it use
@@ -143,29 +147,27 @@ class Neuron:
         # first level is input
 
         for i in range(self.hidden_layers):
+            #input layers
             if i == 0:
                 m = self.input_units
+            #hidden layers
             else:
                 m = len(self.layers_level[i - 1][1])
             n = self.hidden_units
             tem_weight = np.random.randn(n, m)
             tem_bias = np.random.randn(n, 1)
             self.layers_level.append([tem_weight, tem_bias])
-        #predict
+        #output layers
         tem_weight = np.random.randn(self.output_units, self.hidden_units)
         tem_bias = np.random.randn(self.output_units, 1)
         self.layers_level.append([tem_weight, tem_bias])
-        print("------NETWAREK LAYERS-------")
-        print(self.layers_level)
-        print("------------------")
     
     def classify(self,x):
-
-        self.forward_sum_value = []
-        self.forward_pre_value = []
-        self.forward_sum_value.append(x)
+        self.forward_sum_value = []#list save the sum of each unit
+        self.forward_pre_value = []#list save the predict value for each unit
+        self.forward_sum_value.append(x)# the first is input value 
         self.forward_pre_value.append(x)
-        #first hidden layer
+        #first input layer to hiiden layer
         arr1 = []
         arr2 = []
         sum_value = 0
@@ -182,7 +184,7 @@ class Neuron:
         self.forward_sum_value.append(arr1)
         self.forward_pre_value.append(arr2)
 
-        #rest
+        #hidden layers
         for i in range(1,self.hidden_layers):
             arr1 = []
             arr2 = []
@@ -203,7 +205,6 @@ class Neuron:
             self.forward_pre_value.append(arr2)
 
         #outputlayer: 
-        
         arr1 = []
         arr2 = []
         for i in range(self.output_units):
@@ -221,12 +222,9 @@ class Neuron:
         self.forward_pre_value.append(arr2)
         return self.forward_pre_value[-1]
     
-    def update_weight(self,data, ally_true):
+    def update_weight(self,data, ally_true,learn_rate,epochs):
 
-            # weight  self.layers_level[i][0]   bias self.layers_level[i][1]
-
-        learn_rate = 0.1
-        epochs = 1000 # number of times to loop through the entire dataset
+        # weight  self.layers_level[i][0]   bias self.layers_level[i][1]
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
                 predicty = self.classify(x)

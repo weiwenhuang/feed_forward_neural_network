@@ -1,3 +1,6 @@
+# Author: Weiwen Huang, Yaxi Huang
+# Course: CISC481
+
 import numpy as np
 #trainning board for chess game
 boards = np.array([
