@@ -5,8 +5,8 @@ import board as bd
 np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    #defhexapawntest()
-    addtest()
+    defhexapawntest()
+    #addtest()
     #testweight()
 
 
@@ -18,8 +18,9 @@ def defhexapawntest():
     for i in da.boards :
         all_y_trues =  np.append(all_y_trues,bd.minmax(i,1))
         tran_data.append(toarr(i))
-    a.update_weight(tran_data,all_y_trues)
-    print(a.feedforward([1, -1, -1, 0, 0, 0, -1, 1, 1, 1]))
+    a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1))
+    print(a.feedforward([1, 0, -1, -1, -1, 0, 0, 1, 1, 1]))
+    print(all_y_trues)
 
 
 
@@ -32,7 +33,7 @@ def toarr(x):
 
 def testweight():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    a = Neuron('sigmoid',2,2,2,2)
+    a = Neuron('sigmoid',2,2,2,1)
     data = np.array([
     [-2, -1],  
     [25, 6],   
@@ -48,8 +49,8 @@ def testweight():
     a.update_weight(data,all_y_trues)
     emily = np.array([-7, -3]) # 128 pounds, 63 inches
     frank = np.array([20, 2])  # 155 pounds, 68 inches
-    print("Emily: %.3f" % a.feedforward(emily)) # 0.951 - F
-    print("Frank: %.3f" % a.feedforward(frank)) # 0.039 - M
+    print("Emily: ",a.feedforward(emily)) # 0.951 - F
+    print("Frank:",a.feedforward(frank)) # 0.039 - M
 
 def addtest():
 
@@ -70,7 +71,7 @@ def addtest():
     [1,0], 
     ])
     a.update_weight(data,all_y_trues)
-    print(a.feedforward(np.array([1,1])))
+    print('ans : ',a.feedforward(np.array([1,1])))
 
 
 def function(str,x):
@@ -92,7 +93,7 @@ def deriv_sigmoid(x):
 
 def mse_loss(y_true, y_pred):
   # y_true and y_pred are numpy arrays of the same length.
-    return 1-((y_true - y_pred) ** 2).mean()
+    return ((y_true - y_pred) ** 2).mean()
 
 
 
@@ -214,7 +215,7 @@ class Neuron:
             # weight  self.layers_level[i][0]   bias self.layers_level[i][1]
 
         learn_rate = 0.1
-        epochs = 8000 # number of times to loop through the entire dataset
+        epochs = 1000 # number of times to loop through the entire dataset
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
                 predicty = self.feedforward(x)
@@ -231,19 +232,20 @@ class Neuron:
                 print(self.forward_pre_value)
                 '''
 
-                d_L_d_ypred = []
+                d_L_d_ypreds = []
                 for i in range(len(y_true)):
-                    d_L_d_ypred.append(-2 * (y_true[i] - predicty[i]))
+                    d_L_d_ypreds.append(-2 * (y_true[i] - predicty[i]))
+                d_L_d_ypred = np.mean(d_L_d_ypreds)
                 # last layer
                 for j in range(self.output_units):
                     for i in range(len(self.forward_pre_value[-2])):
                         #print(self.forward_pre_value[-2][i],self.forward_pre_value[-1][j])
                         d_ypred_d_w = self.forward_pre_value[-2][i] * deriv_sigmoid(self.forward_sum_value[-1][j])
                         #weight update
-                        self.layers_level[-1][0][j][i] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_w
+                        self.layers_level[-1][0][j][i] -= learn_rate * d_L_d_ypred * d_ypred_d_w
                     d_ypred_d_b = deriv_sigmoid(self.forward_sum_value[-1][j])
                     # bias update
-                    self.layers_level[-1][1][j] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_b
+                    self.layers_level[-1][1][j] -= learn_rate * d_L_d_ypred * d_ypred_d_b
 
                 # rest layer
                 for k in range(len(self.layers_level)-1,0, -1):
@@ -252,11 +254,11 @@ class Neuron:
                             #print('sss',self.forward_pre_value[k-1][i],self.forward_sum_value[k][j])
                             d_ypred_d_w = self.forward_pre_value[k-1][i] * deriv_sigmoid(self.forward_sum_value[k][j])
                             #print('checkweight',self.layers_level[k-1][0][j][i])
-                            self.layers_level[k-1][0][j][i] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_w
+                            self.layers_level[k-1][0][j][i] -= learn_rate * d_L_d_ypred * d_ypred_d_w
                         d_ypred_d_b = deriv_sigmoid(self.forward_sum_value[k][j])
                         #print('check',self.layers_level[k-1][1][j])
                         #update bias
-                        self.layers_level[k-1][1][j] -= learn_rate * d_L_d_ypred[j] * d_ypred_d_b
+                        self.layers_level[k-1][1][j] -= learn_rate * d_L_d_ypred * d_ypred_d_b
 
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.feedforward, 1, data)
