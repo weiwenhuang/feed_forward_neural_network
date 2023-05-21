@@ -1,3 +1,6 @@
+# Author: Weiwen Huang, Yaxi Huang
+# Course: CISC481
+
 import numpy as np
 import data as da
 import board as bd
@@ -18,6 +21,8 @@ def defhexapawntest():
         tran_data.append(toarr(i))
     a.update_weight(tran_data,all_y_trues.reshape(len(all_y_trues),1))
     print(a.classify([1, 0, -1, -1, -1, 0, 0, 1, 1, 1]))
+    print(all_y_trues)
+
 
 def toarr(x):
     res = [1]
@@ -85,7 +90,6 @@ def deriv_function(str,x):
     elif str == 'sigmoid':
         return deriv_sigmoid(x)
 
-
 def deriv_sigmoid(x):
   # Derivative of sigmoid: f'(x) = f(x) * (1 - f(x))
   fx = sigmoid(x)
@@ -132,9 +136,6 @@ class Neuron:
     
     def classify(self,x):
 
-        #h1 = sigmoid(self.w1 * x[0] + self.w2 * x[1] + self.b1)
-        #h2 = sigmoid(self.w3 * x[0] + self.w4 * x[1] + self.b2)
-        #o1 = sigmoid(self.w5 * h1 + self.w6 * h2 + self.b3)
         self.forward_sum_value = []
         self.forward_pre_value = []
         self.forward_sum_value.append(x)
