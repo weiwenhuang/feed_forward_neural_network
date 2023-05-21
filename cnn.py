@@ -6,8 +6,9 @@ np.set_printoptions(suppress=True)
 def main():
     #choose,input_units,hidden_layers,hidden_units,output_units
     #defhexapawntest()
-    #defhexapawntest()
-    testweight()
+    addtest()
+    #testweight()
+
 
 
 def defhexapawntest():
@@ -31,7 +32,7 @@ def toarr(x):
 
 def testweight():
     #choose,input_units,hidden_layers,hidden_units,output_units
-    a = Neuron('sigmoid',2,2,2,1)
+    a = Neuron('sigmoid',2,2,2,2)
     data = np.array([
     [-2, -1],  
     [25, 6],   
@@ -39,10 +40,10 @@ def testweight():
     [-15, -6], 
     ])
     all_y_trues = np.array([
-    1, 
-    0, 
-    0, 
-    1, 
+    [1], 
+    [0], 
+    [0], 
+    [1], 
     ])
     a.update_weight(data,all_y_trues)
     emily = np.array([-7, -3]) # 128 pounds, 63 inches
@@ -213,7 +214,7 @@ class Neuron:
             # weight  self.layers_level[i][0]   bias self.layers_level[i][1]
 
         learn_rate = 0.1
-        epochs = 1000 # number of times to loop through the entire dataset
+        epochs = 1 # number of times to loop through the entire dataset
         for epoch in range(epochs):
             for x, y_true in zip(data, ally_true):
                 predicty = self.feedforward(x)
@@ -230,7 +231,7 @@ class Neuron:
                 print(self.forward_pre_value)
                 '''
                 d_L_d_ypred = -2 * (y_true - predicty)
-                
+                print('check',x,y_true)
                 # last layer
                 for j in range(self.output_units):
                     for i in range(len(self.forward_pre_value[-2])):
